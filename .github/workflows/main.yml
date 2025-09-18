@@ -8,7 +8,7 @@ jobs:
     steps:
       - name: Configure Core RDP Settings
         run: |
-          # Enable Remote Desktop and disable Network Level Authentication if needed
+          # Enable Remote Desktop and disable Network Level Authentication
           Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0
           Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
@@ -32,13 +32,14 @@ jobs:
 
       - name: Establish Tailscale Connection
         run: |
-          tailscale up --authkey $env:TAILSCALE_AUTHKEY --hostname github-rdp --accept-routes --accept-dns
+          & "C:\Program Files (x86)\Tailscale IPN\tailscale.exe" up --authkey $env:TAILSCALE_AUTHKEY --hostname github-rdp --accept-routes --accept-dns
         env:
           TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
 
       - name: Verify RDP Accessibility
         run: |
-          $ip = (tailscale ip -4)
+          $ts = "C:\Program Files (x86)\Tailscale IPN\tailscale.exe"
+          $ip = & $ts ip -4
           Write-Host "`n=== RDP ACCESS ==="
           Write-Host "Address: $ip"
           Write-Host "Username: RDP"
